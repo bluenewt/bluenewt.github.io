@@ -1,0 +1,142 @@
+<head>
+<title>Blue Newt</title>
+<link href='https://fonts.googleapis.com/css?family=Chelsea+Market' rel='stylesheet'>
+</head>
+
+<style>
+body {background-image:url('shopbackgroundtile.png'); text-align:center; font-family:'Chelsea Market',cursive; -ms-interpolation-mode:nearest-neighbor;image-rendering:-webkit-optimize-contrast;image-rendering:-webkit-crisp-edges;image-rendering:-moz-crisp-edges;image-rendering:-o-crisp-edges;image-rendering:pixelated; }
+.threedots:after { content:'\2807'; }
+</style>
+
+<body>
+  <br/>
+  <h1>Conjuring Shop</h1>
+  <br/>
+  <div class='container' style='font-size:100%;'>
+    <H2>Your inventory</H2>  <!-- trident-.png cornbread.png consumable_corn.png -->
+    <div style='display:inline-block;'>
+      <div class='item' id='corn' style='margin-left:auto;margin-right:auto;position:relative;width:128;height:128;'>
+        <div><H3>Corn</H3></div>
+        <img src='corn.png' style='width:64;height:64;'>
+        <div id='corncount' style='position:absolute;bottom:0;right:0;font-size:150%;'>x0</div>
+      </div>
+    </div>
+    <div style='display:inline-block;'>
+      <div class='item' id='bread' style='margin-left:auto;margin-right:auto;position:relative;width:128;height:128;'>
+        <div><H3>Bread</H3></div>
+        <img src='bread.png' style='width:64;height:64;'>
+        <div id='breadcount' style='position:absolute;bottom:0;right:0;font-size:150%;'>x0</div>
+      </div>
+    </div>
+  <br/>
+  <br/>
+  <div id='cornbread'>
+    <div class='item' style='margin-left:auto;margin-right:auto;position:relative;width:128;height:128;'>
+      <div><H3>Cornbread</H3></div>
+      <img src='cornbread.png' style='width:64;height:64;'>
+      <div id='cornbreadcount' style='position:absolute;bottom:0;right:0;font-size:150%;'>x0</div>
+    </div>
+  <br/>
+    <div>You must own at least one corn and one bread to conjure cornbread.</div>
+  <br/>
+    <button style='font:inherit;height:40;' onclick='conjure()'>Conjure cornbread</button>
+    <button class='threedots' style='font:inherit;height:40;' onclick='toggle()'></button>
+  <br/>
+  <br/>
+    <div id='toggle1'>Free!</div>
+    <div id='toggle2' style='display:none'><!-- Pay a fee<input type='text' value='0.0001'>ETH -->
+      Qty: <input id='qty' type='number' min='1' max='1000' value='1' oninput='update()'> Fee: <span id='fee'>0.0000</span> ETH
+    </div>
+  </div>
+  <div id='cursedcornbread' style='display:none;'>
+    <div class='item' id='cursedcornbread' style='margin-left:auto;margin-right:auto;position:relative;width:128;height:128;'>
+      <div><H3>Cursed Cornbread</H3></div>
+      <img src='cursedcornbread.png' style='width:64;height:64;'>
+      <div id='cursedcornbreadcount' style='position:absolute;bottom:0;right:0;font-size:150%;'>x0</div>
+    </div>
+    <div>Ooo, sorry, all your cornbread is cursed. You can't get rid of cursed cornbread.</div>
+  </div>
+</body>
+
+<!-- <div class="test" style="content:'\2807';font-size:100px;""></div> -->
+<!-- <script type="text/javascript" src="web3.min.js"></script> -->
+<script>
+  var web3;
+  var cornaddress = '0xaC21cCcDE31280257784f02f7201465754E96B0b';
+  var breadaddress = '0xEf0b1363d623bDdEc26790bdc41eA6F298F484ec';
+  var cornbreadaddress = '0xdD3b04647788CdC0e82774E660bF54D69155199e';
+  var cursedcornbreadaddress = '0x187001CD569cD5F3E65359C013F69CcB8ca8587d';
+  var c,b,cb,ccb;
+  window.addEventListener("load", function() {
+    if (typeof web3 == 'undefined') {
+      document.querySelector('H2').innerHTML='<a href="https://metamask.io/">Metamask</a> required.'
+      console.log('Error. MetaMask not found.');
+    }
+    if (!web3.eth.coinbase) {
+      document.querySelector('H2').innerHTML='<a href="https://metamask.io/">Metamask</a> login required.'
+    }
+    var abi = [{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"balanceOf","outputs":[],"payable":false,"stateMutability":"pure","type":"function"}];
+    //web3.eth.contract(abi).at(cornaddress).balanceOf.call(web3.eth.defaultAccount, function(e,r){console.log('bal:',r.toNumber());});
+    //web3.eth.contract(abi).at(cornaddress).decimals(function(err,result){console.log(err,'decimals:'+result.toString());});
+    web3.eth.contract(abi).at(cornaddress).balanceOf(web3.eth.coinbase, function(err,result) {
+      if (!err) {
+        c = web3.fromWei(result,'ether'); 
+        document.querySelector('#corncount').innerHTML='x'+c; 
+        console.log('corn:'+c);
+      } else {console.log(err);}
+    } );
+    web3.eth.contract(abi).at(breadaddress).balanceOf(web3.eth.coinbase, function(err,result) {
+      if (!err) {
+        b = web3.fromWei(result,'ether'); 
+        document.querySelector('#breadcount').innerHTML='x'+b; 
+        console.log('bread:'+b);
+      } else {console.log(err);}
+    } );
+    web3.eth.contract(abi).at(cornbreadaddress).balanceOf(web3.eth.coinbase, function(err,result) {
+      if (!err) {
+        cb = result.toNumber(); 
+        document.querySelector('#cornbreadcount').innerHTML='x'+cb;
+        if (cb>0) document.querySelector('.threedots').style.display='inline';
+        console.log('cornbread:'+cb);
+      } else {console.log(err);}
+    } );
+    web3.eth.contract(abi).at(cursedcornbreadaddress).balanceOf(web3.eth.coinbase, function(err,result) {
+      if (!err) {
+        ccb = result.toNumber(); 
+        document.querySelector('#cursedcornbreadcount').innerHTML='x'+ccb; 
+        console.log('cursedcornbread:'+ccb);
+        if (ccb) { 
+          document.querySelector('#cursedcornbread').style.display='inline'; 
+          document.querySelector('#cornbread').style.display='none';
+        }
+      } else {console.log(err);}
+    } );
+  })
+  function conjure() {
+    var fee = web3.toWei(document.getElementById('fee').innerHTML,'ether');
+    web3.eth.sendTransaction({
+        from: web3.eth.coinbase,
+        to: cornbreadaddress,
+        value: fee,
+        gas: '200000'
+        },
+      function(err,result) {
+        if (!err) { console.log('fee:'+fee+' transaction:'+result); } else { console.log(err); }
+        //if (!err) { web3.eth.getTransaction(result,function(err,result) { console.log(err,result); } ); } // shows transaction info before it's mined
+      }
+    )
+  }
+  function toggle() {
+    if (document.getElementById('toggle1').style.display==='none'){
+      document.getElementById('toggle1').style.display = 'block';
+      document.getElementById('toggle2').style.display = 'none';
+    } else {
+      document.getElementById('toggle2').style.display = 'block';
+      document.getElementById('toggle1').style.display = 'none';
+    }
+  }
+  function update() {
+    var n = document.getElementById('qty').value; //console.log(n,n*(n-1)/2);
+    document.getElementById('fee').innerHTML = (n*(n-1)/2*0.0001).toFixed(4);
+  }
+</script>
