@@ -19,7 +19,7 @@ contract CursedToken is ERC20 {
     string public name = "Cursed Cornbread";
     uint8 public decimals = 0;
     uint public totalSupply = 0;
-    address public owner = x;
+    address public owner = 0x55516b579E56C1287f0700eddDa352C2d2c5b3b6;
 
     // all funds will go to GiveDirectly charity 
     // https://web.archive.org/web/20180313215224/https://www.givedirectly.org/give-now?crypto=eth#
